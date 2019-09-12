@@ -7,6 +7,30 @@ const { JWT_KEY } = require('../../util/constants');
 
 const authRouter = Router();
 
+/**
+ * @swagger
+ * /api/v1/auth/signup:
+ *   post:
+ *     tags:
+ *       - auth
+ *     description: Register a user
+ *     parameters:
+ *          - name: email
+ *            in: formData
+ *            type: string
+ *            required: true
+ *          - name: password
+ *            in: formData
+ *            type: string
+ *            required: true
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       201:
+ *         description: Returns a message - User registered successfully
+ *       409:
+ *         description: Returns a message - Email already in use
+ */
 authRouter.post('/signup', (req,res) => {
     userRepo.findByEmail(req.body.email, (err,rows) => {
         if (rows.length >= 1)
@@ -36,6 +60,31 @@ authRouter.post('/signup', (req,res) => {
     });
 });
 
+/**
+ * @swagger
+ * /api/v1/auth/login:
+ *   post:
+ *     tags:
+ *       - auth
+ *     description: Authenticate using user credentials
+ *     parameters:
+ *          - name: email
+ *            in: formData
+ *            type: string
+ *            required: true
+ *          - name: password
+ *            in: formData
+ *            type: string
+ *            required: true
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       401:
+ *         description: Returns an error message - Unauthorized
+ *       200:
+ *         description: Returns a jwt token, payload and message - Auth completed successfully
+ *       
+ */
 authRouter.post('/login', (req,res) => {
     userRepo.findByEmail(req.body.email, (err,rows) => {
         if(err) throw err;
@@ -49,7 +98,6 @@ authRouter.post('/login', (req,res) => {
                     uid: rows[0].id,
                     email: rows[0].email
                 };
-                //Create token
                 const token = jwt.sign(
                     payload,
                     JWT_KEY,
