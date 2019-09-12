@@ -15,5 +15,13 @@
   "bugs": {
     "url": "https://github.com/AttentionApp/api/issues"
   },
-  "homepage": "https://github.com/AttentionApp/api#readme"
+  "homepage": "https://github.com/AttentionApp/api#readme",
+  "dependencies": {
+    "bcrypt": "^3.0.6",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.9.1",
+    "mysql": "github:mysqljs/mysql"
+  }
 }
