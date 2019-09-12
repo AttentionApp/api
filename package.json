@@ -1,0 +1,19 @@
+{
+  "name": "attention-api",
+  "version": "1.0.0",
+  "description": "AttentionApp - RESTful API",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AttentionApp/api.git"
+  },
+  "author": "Manuel Alvarado Estanga",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AttentionApp/api/issues"
+  },
+  "homepage": "https://github.com/AttentionApp/api#readme"
+}
