@@ -3,10 +3,6 @@ const userRepo = require('../models/user');
 const { verifyToken } = require('../middleware/auth');
 const userRouter = Router();
 
-userRouter.get('/self',verifyToken, (req,res) => {
-    return res.status(200).send(req.userData);
-});
-
 userRouter.get('/', verifyToken, (req,res) => {
     userRepo.findAll((err,rows) => {
         if(err){

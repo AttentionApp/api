@@ -21,12 +21,8 @@ module.exports = {
         });
     },
     save: (userData, callback) => {
-        const values = Object.keys(userData).map(key => {
-            return escape(userData[key]);
-        });
-        const sql = `INSERT INTO users (email,password,active,created_by,create_date,modified_by,modify_date,modify_reason) 
-        VALUES(${values})`;
-        pool.query(sql,(err,results) => {
+        const sql = 'INSERT INTO users SET ?';
+        pool.query(sql,userData,(err,results) => {
             console.log(`Affected rows: ${results.affectedRows}`);
             callback(err,results.insertId);
         });
