@@ -1,6 +1,6 @@
 const { Router } = require('express');
-const nurseTypeRepo = require('../models/nursetype');
-const auth = require('../middleware/auth');
+const nurseTypeRepo = require('../../models/nursetype');
+const auth = require('../../middleware/auth');
 
 const nurseTypeRouter = Router();
 
