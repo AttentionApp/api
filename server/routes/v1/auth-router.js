@@ -102,7 +102,7 @@ authRouter.post('/login', (req,res) => {
                     payload,
                     JWT_KEY,
                     {
-                        expiresIn: '1h'
+                        expiresIn: '0'
                     }
                 );
                 return res.status(200).send({
