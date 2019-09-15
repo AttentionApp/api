@@ -57,11 +57,11 @@ reservationRouter.get('/',auth.verifyToken,(req,res) => {
  */
 reservationRouter.get('/:id',auth.verifyToken,(req,res) => {
     const id = parseInt(req.params.id);
-    reservationRepo.findById(id,(err,customer) => {
+    reservationRepo.findById(id,(err,reservation) => {
         let numRows = 0;
         if(err) throw err;
-        if(customer) numRows++;
-        res.status(200).send({ success: true, numRows, customer});
+        if(reservation) numRows++;
+        res.status(200).send({ success: true, numRows, reservation});
     });
 });
 

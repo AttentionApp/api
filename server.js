@@ -22,14 +22,14 @@ const authRouter = require('./server/routes/v1/auth-router');
 const userRouter = require('./server/routes/v1/user-router');
 const customerRouter = require('./server/routes/v1/customer-router');
 const nurseRouter = require('./server/routes/v1/nurse-router');
-const nurseTypeRouter = require('./server/routes/v1/nursetype-router');
 const reservationRouter = require('./server/routes/v1/reservation-router');
+const cardRouter = require('./server/routes/v1/card-router');
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/customers', customerRouter);
 app.use('/api/v1/nurses',nurseRouter);
-app.use('/api/v1/nursetypes',nurseTypeRouter);
 app.use('/api/v1/reservations',reservationRouter);
+app.use('/api/v1/cards',cardRouter);
 
 //Docs
 
