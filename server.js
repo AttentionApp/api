@@ -25,6 +25,7 @@ const nurseRouter = require('./server/routes/v1/nurse-router');
 const reservationRouter = require('./server/routes/v1/reservation-router');
 const cardRouter = require('./server/routes/v1/card-router');
 const scheduleRouter = require('./server/routes/v1/schedule-router');
+const nursetypeRouter = require('./server/routes/v1/nursetype-router');
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/customers', customerRouter);
@@ -32,6 +33,7 @@ app.use('/api/v1/nurses',nurseRouter);
 app.use('/api/v1/reservations',reservationRouter);
 app.use('/api/v1/cards',cardRouter);
 app.use('/api/v1/schedules', scheduleRouter);
+app.use('/api/v1/nursetypes',nursetypeRouter);
 
 //Docs
 
