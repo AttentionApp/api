@@ -160,7 +160,7 @@ customerRouter.post('/',auth.verifyToken, (req,res) => {
  *       - application/json
  *     responses:
  *       200:
- *         description: A message if complete successfully
+ *         description: A message if completes successfully
  *       401:
  *         description: Unauthorized
  */
