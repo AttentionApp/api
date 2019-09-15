@@ -34,7 +34,7 @@ customerRouter.get('/',auth.verifyToken,(req,res) => {
 
 /**
  * @swagger
- * /api/v1/customers/:id:
+ * /api/v1/customers/{id}:
  *   get:
  *     tags:
  *       - customers
@@ -60,8 +60,10 @@ customerRouter.get('/',auth.verifyToken,(req,res) => {
 customerRouter.get('/:id',auth.verifyToken,(req,res) => {
     const id = parseInt(req.params.id);
     customerRepo.findById(id,(err,customer) => {
+        let numRows = 0;
         if(err) throw err;
-        res.status(200).send({ success: true, numRows: 1, customer});
+        if(customer) numRows++;
+        res.status(200).send({ success: true, numRows, customer});
     });
 });
 
@@ -78,10 +80,6 @@ customerRouter.get('/:id',auth.verifyToken,(req,res) => {
  *         name: Authorization
  *         description: Bearer Token
  *         type: string
- *       - name: idcustomer
- *         in: formData
- *         required: true
- *         type: integer
  *       - name: first_name
  *         type: string
  *         in: formData
@@ -125,7 +123,7 @@ customerRouter.post('/',auth.verifyToken, (req,res) => {
 
 /**
  * @swagger
- * /api/v1/customers/:id:
+ * /api/v1/customers/{id}:
  *   put:
  *     tags:
  *       - customers
@@ -135,7 +133,7 @@ customerRouter.post('/',auth.verifyToken, (req,res) => {
  *         name: Authorization
  *         description: Bearer Token
  *         type: string
- *       - name: idcustomer
+ *       - name: id
  *         in: path
  *         required: true
  *         type: integer
@@ -171,8 +169,7 @@ customerRouter.put('/:id', auth.verifyToken, (req,res) => {
     const id = parseInt(req.params.id);
     const commonProps = {
         modified_by: req.userData.email,
-        modify_date: new Date(),
-        modify_reason: 'UPDATE'
+        modify_date: new Date()
     };
     customerData = Object.assign(customerData,commonProps);
     customerRepo.update(id,customerData,(err,message) => {
@@ -183,7 +180,7 @@ customerRouter.put('/:id', auth.verifyToken, (req,res) => {
 
 /**
  * @swagger
- * /api/v1/customers/:id:
+ * /api/v1/customers/{id}:
  *   delete:
  *     tags:
  *       - customers
@@ -193,7 +190,7 @@ customerRouter.put('/:id', auth.verifyToken, (req,res) => {
  *         name: Authorization
  *         description: Bearer Token
  *         type: string
- *       - name: idcustomer
+ *       - name: id
  *         in: path
  *         required: true
  *         type: integer
@@ -207,7 +204,12 @@ customerRouter.put('/:id', auth.verifyToken, (req,res) => {
  */
 customerRouter.delete('/:id', auth.verifyToken, (req,res) => {
     const id = parseInt(req.params.id);
-    customerRepo.delete(id,(err,message) => {
+    const payload = {
+        active: false,
+        deleted_by: req.userData.email,
+        delete_date: new Date()
+    };
+    customerRepo.delete(id,payload,(err,message) => {
         if(err) throw err;
         res.status(200).send({success: true, message});
     });
