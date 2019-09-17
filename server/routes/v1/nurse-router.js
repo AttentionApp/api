@@ -62,7 +62,7 @@ nurseRouter.get('/:id',auth.verifyToken,(req,res) => {
         let numRows = 0;
         if(err) throw err;
         if(nurse) numRows++;
-        res.status(200).send({ success: true, numRows, nurse});
+        res.status(200).send({ success: true, numRows, data: nurse});
     });
 });
 

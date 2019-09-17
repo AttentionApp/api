@@ -63,7 +63,7 @@ customerRouter.get('/:id',auth.verifyToken,(req,res) => {
         let numRows = 0;
         if(err) throw err;
         if(customer) numRows++;
-        res.status(200).send({ success: true, numRows, customer});
+        res.status(200).send({ success: true, numRows, data: customer});
     });
 });
 

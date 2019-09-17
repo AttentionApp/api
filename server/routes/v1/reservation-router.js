@@ -61,7 +61,7 @@ reservationRouter.get('/:id',auth.verifyToken,(req,res) => {
         let numRows = 0;
         if(err) throw err;
         if(reservation) numRows++;
-        res.status(200).send({ success: true, numRows, reservation});
+        res.status(200).send({ success: true, numRows, data: reservation});
     });
 });
 

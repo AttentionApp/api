@@ -62,7 +62,7 @@ scheduleRouter.get('/:id',auth.verifyToken,(req,res) => {
         let numRows = 0;
         if(err) throw err;
         if(schedule) numRows++;
-        res.status(200).send({ success: true, numRows, schedule});
+        res.status(200).send({ success: true, numRows, data: schedule});
     });
 });
 

@@ -34,7 +34,7 @@ const authRouter = Router();
 authRouter.post('/signup', (req,res) => {
     userRepo.findByEmail(req.body.email, (err,rows) => {
         if (rows.length >= 1)
-            return res.status(409).send({message: 'Email already in use'});
+            return res.status(409).send({sucess: false, message: 'Email already in use'});
         else {
             bcrypt.hash(req.body.password, 10, (err,hash) => {
                 if(err) {
@@ -53,7 +53,7 @@ authRouter.post('/signup', (req,res) => {
                     userRepo.save(userData, (err,result) => {
                         console.log(result);
                     });
-                    res.status(201).send({message: "User registered successfully"});
+                    res.status(201).send({success: true, message: "User registered successfully"});
                 }
             });
         }
@@ -92,7 +92,7 @@ authRouter.post('/login', (req,res) => {
             return res.status(401).send({ message: 'User doesn\'t exists.' });
         bcrypt.compare(req.body.password, rows[0].password, (err,result) => {
             if(err)
-                return res.status(401).send({message: 'Invalid password'});
+                return res.status(401).send({success: false, message: 'Invalid password'});
             if(result){
                 const payload = {
                     uid: rows[0].id,
@@ -106,12 +106,13 @@ authRouter.post('/login', (req,res) => {
                     }
                 );
                 return res.status(200).send({
+                    sucess: true,
                     message: 'Auth completed successfully',
                     userData: payload,
                     token: token
                 });
             }
-            return res.status(401).send({message:'Auth failed'});
+            return res.status(401).send({sucess: false, message:'Auth failed'});
         });
     })
 });

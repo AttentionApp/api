@@ -29,7 +29,7 @@ userRouter.get('/', verifyToken, (req,res) => {
         if(err){
             return res.status(500).send(err);
         }
-        res.status(200).send(rows);
+        res.status(200).send({ success: true, numRows: rows.length, rows});
     });
 });
 
@@ -62,10 +62,10 @@ userRouter.get('/', verifyToken, (req,res) => {
 userRouter.get('/:id', verifyToken, (req,res) => {
     const id = parseInt(req.params.id);
     userRepo.findById(id,(err,user) => {
-        if(err){
-            return res.status(500).send(err);
-        }
-        res.status(200).send(user);
+        let numRows = 0;
+        if(err) throw err;
+        if(user) numRows++;
+        res.status(200).send({ success: true, numRows, data: user});
     });
 });
 

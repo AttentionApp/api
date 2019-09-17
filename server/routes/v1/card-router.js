@@ -61,7 +61,7 @@ cardRouter.get('/:id',auth.verifyToken,(req,res) => {
         let numRows = 0;
         if(err) throw err;
         if(card) numRows++;
-        res.status(200).send({ success: true, numRows, card});
+        res.status(200).send({ success: true, numRows, data: card});
     });
 });
 
