@@ -53,7 +53,17 @@ authRouter.post('/signup', (req,res) => {
                     userRepo.save(userData, (err,result) => {
                         console.log(result);
                     });
-                    res.status(201).send({success: true, message: "User registered successfully"});
+                    const payload = {
+                        email: userData.email
+                    };
+                    const token = jwt.sign(
+                        payload,
+                        JWT_KEY,
+                        {
+                            expiresIn: '0'
+                        }
+                    );
+                    res.status(201).send({success: true, message: "User registered successfully", token, userData: payload });
                 }
             });
         }

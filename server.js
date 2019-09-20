@@ -35,14 +35,20 @@ app.use('/api/v1/cards',cardRouter);
 app.use('/api/v1/schedules', scheduleRouter);
 app.use('/api/v1/nursetypes',nursetypeRouter);
 
+
 //Docs
 
 const initSwagger = require('./server/docs/swagger');
 initSwagger(app);
 
+
 //Home
 app.get('/',(req,res) => {
     res.status(200).send("Attention APP");
+});
+
+app.use((error, req, res, next) => {
+    res.status(500).send({success: false,  message: error.message });
 });
 
 //Create server and listen
