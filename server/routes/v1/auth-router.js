@@ -89,7 +89,7 @@ authRouter.post('/login', (req,res) => {
     userRepo.findByEmail(req.body.email, (err,rows) => {
         if(err) throw err;
         if(rows.length < 1)
-            return res.status(401).send({ message: 'User doesn\'t exists.' });
+            return res.status(401).send({ sucess:false, message: 'User doesn\'t exists.' });
         bcrypt.compare(req.body.password, rows[0].password, (err,result) => {
             if(err)
                 return res.status(401).send({success: false, message: 'Invalid password'});
