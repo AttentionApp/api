@@ -53,12 +53,12 @@ authRouter.post('/signup', (req,res) => {
                 } else {
                     const {email,first_name,last_name} = req.body;
                     const short_name = `${first_name} ${last_name}`;
-                    authRepo.registerUserCustomer(email,hash,first_name,last_name,short_name,(err,result) => {
+                    authRepo.registerUserCustomer(email,hash,first_name,last_name,short_name,(err,rows) => {
                         if(err){
                             throw err;
                         }
                         let payload = {};
-                        payload = Object.assign(payload,result);
+                        payload = Object.assign(payload,rows[0]);
                         const token = jwt.sign(
                             payload,
                             JWT_KEY,
