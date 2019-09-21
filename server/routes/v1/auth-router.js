@@ -1,5 +1,7 @@
 const { Router } = require('express');
 const userRepo = require('../../models/user');
+const authRepo = require('../../models/auth');
+const auth = require('../../middleware/auth');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -13,7 +15,7 @@ const authRouter = Router();
  *   post:
  *     tags:
  *       - auth
- *     description: Register a user
+ *     description: Register a customer's user
  *     parameters:
  *          - name: email
  *            in: formData
@@ -23,13 +25,22 @@ const authRouter = Router();
  *            in: formData
  *            type: string
  *            required: true
+ *          - name: first_name
+ *            in: formData
+ *            type: string
+ *            required: true
+ *          - name: last_name
+ *            in: formData
+ *            required: true
  *     produces:
  *       - application/json
  *     responses:
  *       201:
- *         description: Returns a message - User registered successfully
+ *         description: Returns jwt, message
  *       409:
  *         description: Returns a message - Email already in use
+ *       500:
+ *         description: Returns an error message
  */
 authRouter.post('/signup', (req,res) => {
     userRepo.findByEmail(req.body.email, (err,rows) => {
@@ -40,30 +51,23 @@ authRouter.post('/signup', (req,res) => {
                 if(err) {
                     throw err;
                 } else {
-                    const userData = {
-                        email: req.body.email,
-                        password: hash,
-                        active: true,
-                        created_by: req.body.email,
-                        create_date: new Date(),
-                        modified_by: null,
-                        modify_date: null,
-                        modify_reason: null
-                    };
-                    userRepo.save(userData, (err,result) => {
-                        console.log(result);
-                    });
-                    const payload = {
-                        email: userData.email
-                    };
-                    const token = jwt.sign(
-                        payload,
-                        JWT_KEY,
-                        {
-                            expiresIn: '0'
+                    const {email,first_name,last_name} = req.body;
+                    const short_name = `${first_name} ${last_name}`;
+                    authRepo.registerUserCustomer(email,hash,first_name,last_name,short_name,(err,result) => {
+                        if(err){
+                            throw err;
                         }
-                    );
-                    res.status(201).send({success: true, message: "User registered successfully", token, userData: payload });
+                        let payload = {};
+                        payload = Object.assign(payload,result);
+                        const token = jwt.sign(
+                            payload,
+                            JWT_KEY,
+                            {
+                                expiresIn: '0'
+                            }
+                        );
+                        res.status(201).send({success: true, message: "User registered successfully", token, userData: payload });
+                    });
                 }
             });
         }
@@ -90,24 +94,26 @@ authRouter.post('/signup', (req,res) => {
  *       - application/json
  *     responses:
  *       401:
- *         description: Returns an error message - Unauthorized
+ *         description: Returns an error message - User doesn't exists, Invalid Password
  *       200:
- *         description: Returns a jwt token, payload and message - Auth completed successfully
- *       
+ *         description: Returns a jwt token and message - Auth Completed Successfully
+ *       500:
+ *         description: Returns an error message
  */
 authRouter.post('/login', (req,res) => {
-    userRepo.findByEmail(req.body.email, (err,rows) => {
+    authRepo.getCustomerLogin(req.body.email, (err,rows) => {
         if(err) throw err;
-        if(rows.length < 1)
+        if(rows.length < 1){
             return res.status(401).send({ sucess:false, message: 'User doesn\'t exists.' });
+        }
         bcrypt.compare(req.body.password, rows[0].password, (err,result) => {
-            if(err)
+            if(err){
                 return res.status(401).send({success: false, message: 'Invalid password'});
+            }
             if(result){
-                const payload = {
-                    uid: rows[0].id,
-                    email: rows[0].email
-                };
+                let payload = {};
+                delete rows[0].password;
+                payload = Object.assign(payload,rows[0]);
                 const token = jwt.sign(
                     payload,
                     JWT_KEY,
@@ -125,6 +131,42 @@ authRouter.post('/login', (req,res) => {
             return res.status(401).send({sucess: false, message:'Auth failed'});
         });
     })
+});
+
+/**
+ * @swagger
+ * /api/v1/auth/self:
+ *   get:
+ *     tags:
+ *       - auth
+ *     description: Retrieves user data
+ *     parameters:
+ *          - in: header
+ *            name: Authorization
+ *            description: Bearer Token
+ *            type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       401:
+ *         description: Returns an error message - Unauthorized
+ *       200:
+ *         description: Returns user data
+ *       500:
+ *         description: Returns an error message - Exception
+ */
+authRouter.get('/self',auth.verifyToken,(req,res) => {
+    console.log(req.userData);
+    authRepo.getProfileData(req.userData.email,(err,rows) => {
+        let numRows = 0;
+        if(err) throw err;
+        if(rows[0]) numRows++;
+        return res.status(200).send({
+            success: true,
+            numRows,
+            data: rows[0]
+        });
+    });
 });
 
 module.exports = authRouter;

@@ -152,7 +152,7 @@ customerRouter.post('/',auth.verifyToken, (req,res) => {
  *       - name: gender
  *         type: string
  *         in: formData
- *         required: true
+ *         required: false
  *       - name: iduser
  *         type: integer
  *         in: formData

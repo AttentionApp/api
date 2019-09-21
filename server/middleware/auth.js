@@ -13,6 +13,7 @@ auth.verifyToken = (req,res,next) => {
         req.userData = decoded;
         next();
     } catch(err) {
+        console.log(err.message);
         return res.status(401).send({message: 'Unauthorized'});
     }
 }
