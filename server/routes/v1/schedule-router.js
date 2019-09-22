@@ -1,8 +1,8 @@
 const { Router } = require('express');
 const scheduleRepo = require('../../models/schedule');
 const auth = require('../../middleware/auth');
-
 const scheduleRouter = Router();
+const { CollectionResponse, DataResponse, StatusResponse, PostResponse } = require('../../responses/common/Responses');
 
 /**
  * @swagger
@@ -10,7 +10,7 @@ const scheduleRouter = Router();
  *   get:
  *     tags:
  *       - schedules
- *     description: Returns all schedules
+ *     description: CollectionResponse - Returns all schedules
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -24,10 +24,10 @@ const scheduleRouter = Router();
  *       401:
  *         description: Unauthorized
  */
-scheduleRouter.get('/',auth.verifyToken,(req,res) => {
+scheduleRouter.get('/',auth.verifyToken,(req,res,next) => {
     scheduleRepo.findAll((err,rows) => {
-        if(err) throw err;
-        res.status(200).send({ success: true, numRows: rows.length, rows});
+        if(err) next(err);
+        res.status(200).send(new CollectionResponse(true,rows.length,rows));
     });
 });
 
@@ -37,7 +37,7 @@ scheduleRouter.get('/',auth.verifyToken,(req,res) => {
  *   get:
  *     tags:
  *       - schedules
- *     description: Returns schedule by id
+ *     description: DataResponse - Returns schedule by id
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -56,13 +56,13 @@ scheduleRouter.get('/',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-scheduleRouter.get('/:id',auth.verifyToken,(req,res) => {
+scheduleRouter.get('/:id',auth.verifyToken,(req,res,next) => {
     const id = parseInt(req.params.id);
     scheduleRouter.findById(id,(err,schedule) => {
         let numRows = 0;
-        if(err) throw err;
+        if(err) next(err);
         if(schedule) numRows++;
-        res.status(200).send({ success: true, numRows, data: schedule});
+        res.status(200).send(new DataResponse(true,numRows,schedule));
     });
 });
 
@@ -72,7 +72,7 @@ scheduleRouter.get('/:id',auth.verifyToken,(req,res) => {
  *   post:
  *     tags:
  *       - schedules
- *     description: Add a schedule
+ *     description: PostResponse - Add a schedule
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -110,7 +110,7 @@ scheduleRouter.get('/:id',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-scheduleRouter.post('/',auth.verifyToken, (req,res) => {
+scheduleRouter.post('/',auth.verifyToken, (req,res,next) => {
     let scheduleData = req.body;
     const commonProps = {
         created_by: req.userData.email,
@@ -119,8 +119,8 @@ scheduleRouter.post('/',auth.verifyToken, (req,res) => {
     };
     scheduleData = Object.assign(scheduleData,commonProps);
     scheduleRepo.save(scheduleData,(err,insertId) => {
-        if(err) throw err;
-        res.status(201).send({success: true ,insertId});
+        if(err) next(err);
+        res.status(201).send(new PostResponse(true,insertId));
     });
 });
 
@@ -130,7 +130,7 @@ scheduleRouter.post('/',auth.verifyToken, (req,res) => {
  *   put:
  *     tags:
  *       - schedules
- *     description: Update a schedule
+ *     description: StatusResponse - Update a schedule
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -172,7 +172,7 @@ scheduleRouter.post('/',auth.verifyToken, (req,res) => {
  *       401:
  *         description: Unauthorized
  */
-scheduleRouter.put('/:id', auth.verifyToken, (req,res) => {
+scheduleRouter.put('/:id', auth.verifyToken, (req,res,next) => {
     let scheduleData = req.body;
     const id = parseInt(req.params.id);
     const commonProps = {
@@ -181,8 +181,8 @@ scheduleRouter.put('/:id', auth.verifyToken, (req,res) => {
     };
     scheduleData = Object.assign(scheduleData,commonProps);
     scheduleRepo.update(id,scheduleData,(err,message) => {
-        if(err) throw err;
-        res.status(200).send({success: true, message});
+        if(err) next(err);
+        res.status(200).send(new StatusResponse(true,message));
     })
 });
 
@@ -192,7 +192,7 @@ scheduleRouter.put('/:id', auth.verifyToken, (req,res) => {
  *   delete:
  *     tags:
  *       - schedules
- *     description: Delete a schedule
+ *     description: StatusResponse - Delete a schedule
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -210,7 +210,7 @@ scheduleRouter.put('/:id', auth.verifyToken, (req,res) => {
  *       401:
  *         description: Unauthorized
  */
-scheduleRouter.delete('/:id', auth.verifyToken, (req,res) => {
+scheduleRouter.delete('/:id', auth.verifyToken, (req,res,next) => {
     const id = parseInt(req.params.id);
     const payload = {
         active: false,
@@ -218,8 +218,8 @@ scheduleRouter.delete('/:id', auth.verifyToken, (req,res) => {
         delete_date: new Date()
     };
     scheduleRepo.delete(id,payload,(err,message) => {
-        if(err) throw err;
-        res.status(200).send({success: true, message});
+        if(err) next(err);
+        res.status(200).send(new StatusResponse(true,message));
     });
 });
 

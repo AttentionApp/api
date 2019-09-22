@@ -1,6 +1,7 @@
 //Dependencies
 const http = require('http');
 const express = require('express');
+const { StatusResponse } = require('./server/responses/common/Responses');
 
 //Setup
 const PORT = process.env.PORT || 3000;
@@ -48,7 +49,7 @@ app.get('/',(req,res) => {
 });
 
 app.use((error, req, res, next) => {
-    res.status(500).send({success: false,  message: error.message });
+    res.status(500).send(new StatusResponse(false,error.message));
 });
 
 //Create server and listen

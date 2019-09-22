@@ -2,6 +2,7 @@ const { Router } = require('express');
 const cardRepo = require('../../models/card');
 const auth = require('../../middleware/auth');
 const cardRouter = Router();
+const { CollectionResponse, DataResponse, StatusResponse, PostResponse } = require('../../responses/common/Responses');
 
 /**
  * @swagger
@@ -9,7 +10,7 @@ const cardRouter = Router();
  *   get:
  *     tags:
  *       - cards
- *     description: Returns all cards
+ *     description: CollectionResponse - Returns all cards
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -23,10 +24,10 @@ const cardRouter = Router();
  *       401:
  *         description: Unauthorized
  */
-cardRouter.get('/',auth.verifyToken,(req,res) => {
+cardRouter.get('/',auth.verifyToken,(req,res,next) => {
     cardRepo.findAll((err,rows) => {
-        if(err) throw err;
-        res.status(200).send({ success: true, numRows: rows.length, rows});
+        if(err) next(err);
+        res.status(200).send(new CollectionResponse(true,rows.length,rows));
     });
 });
 
@@ -36,7 +37,7 @@ cardRouter.get('/',auth.verifyToken,(req,res) => {
  *   get:
  *     tags:
  *       - cards
- *     description: Returns card by id
+ *     description: DataResponse - Returns card by id
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -55,13 +56,13 @@ cardRouter.get('/',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-cardRouter.get('/:id',auth.verifyToken,(req,res) => {
+cardRouter.get('/:id',auth.verifyToken,(req,res,err) => {
     const id = parseInt(req.params.id);
     cardRepo.findById(id,(err,card) => {
         let numRows = 0;
-        if(err) throw err;
+        if(err) next(err);
         if(card) numRows++;
-        res.status(200).send({ success: true, numRows, data: card});
+        res.status(200).send(new DataResponse(true,numRows,card));
     });
 });
 
@@ -71,7 +72,7 @@ cardRouter.get('/:id',auth.verifyToken,(req,res) => {
  *   post:
  *     tags:
  *       - cards
- *     description: Add a card
+ *     description: PostResponse - Add a card
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -105,7 +106,7 @@ cardRouter.get('/:id',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-cardRouter.post('/',auth.verifyToken, (req,res) => {
+cardRouter.post('/',auth.verifyToken, (req,res,next) => {
     let cardData = req.body;
     const commonProps = {
         created_by: req.userData.email,
@@ -114,8 +115,8 @@ cardRouter.post('/',auth.verifyToken, (req,res) => {
     };
     cardData = Object.assign(cardData,commonProps);
     cardRepo.save(cardData,(err,insertId) => {
-        if(err) throw err;
-        res.status(201).send({success: true ,insertId});
+        if(err) next(err);
+        res.status(201).send(new PostResponse(true,insertId));
     });
 });
 
@@ -125,7 +126,7 @@ cardRouter.post('/',auth.verifyToken, (req,res) => {
  *   put:
  *     tags:
  *       - cards
- *     description: Update a card
+ *     description: StatusResponse - Update a card
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -163,7 +164,7 @@ cardRouter.post('/',auth.verifyToken, (req,res) => {
  *       401:
  *         description: Unauthorized
  */
-cardRouter.put('/:id', auth.verifyToken, (req,res) => {
+cardRouter.put('/:id', auth.verifyToken, (req,res,next) => {
     let cardData = req.body;
     const id = parseInt(req.params.id);
     const commonProps = {
@@ -172,8 +173,8 @@ cardRouter.put('/:id', auth.verifyToken, (req,res) => {
     };
     cardData = Object.assign(cardData,commonProps);
     cardRepo.update(id,cardData,(err,message) => {
-        if(err) throw err;
-        res.status(200).send({success: true, message});
+        if(err) next(err);
+        res.status(200).send(new StatusResponse(true,message));
     })
 });
 
@@ -183,7 +184,7 @@ cardRouter.put('/:id', auth.verifyToken, (req,res) => {
  *   delete:
  *     tags:
  *       - cards
- *     description: Delete a card
+ *     description: StatusResponse - Delete a card
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -201,7 +202,7 @@ cardRouter.put('/:id', auth.verifyToken, (req,res) => {
  *       401:
  *         description: Unauthorized
  */
-cardRouter.delete('/:id', auth.verifyToken, (req,res) => {
+cardRouter.delete('/:id', auth.verifyToken, (req,res,next) => {
     const id = parseInt(req.params.id);
     const payload = {
         active: false,
@@ -209,8 +210,8 @@ cardRouter.delete('/:id', auth.verifyToken, (req,res) => {
         delete_date: new Date()
     };
     cardRepo.delete(id,payload,(err,message) => {
-        if(err) throw err;
-        res.status(200).send({success: true, message});
+        if(err) next(err);
+        res.status(200).send(new StatusResponse(true,message));
     });
 });
 

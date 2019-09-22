@@ -2,6 +2,8 @@ const { Router } = require('express');
 const nursetypeRepo = require('../../models/nursetype');
 const auth = require('../../middleware/auth');
 const nursetypeRouter = Router();
+const { CollectionResponse, DataResponse } = require('../../responses/common/Responses');
+
 
 /**
  * @swagger
@@ -9,7 +11,7 @@ const nursetypeRouter = Router();
  *   get:
  *     tags:
  *       - nursetypes
- *     description: Returns all nursetypes
+ *     description: CollectionResponse - Returns all nursetypes
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -23,10 +25,10 @@ const nursetypeRouter = Router();
  *       401:
  *         description: Unauthorized
  */
-nursetypeRouter.get('/',auth.verifyToken,(req,res) => {
+nursetypeRouter.get('/',auth.verifyToken,(req,res,next) => {
     nursetypeRepo.findAll((err,rows) => {
-        if(err) throw err;
-        res.status(200).send({ success: true, numRows: rows.length, rows});
+        if(err) next(err);
+        res.status(200).send(new CollectionResponse(true,rows.length,rows));
     });
 });
 
@@ -36,7 +38,7 @@ nursetypeRouter.get('/',auth.verifyToken,(req,res) => {
  *   get:
  *     tags:
  *       - nursetypes
- *     description: Returns nursetype by id
+ *     description: DataResponse - Returns nursetype by id
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -55,13 +57,13 @@ nursetypeRouter.get('/',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-nursetypeRouter.get('/:id',auth.verifyToken,(req,res) => {
+nursetypeRouter.get('/:id',auth.verifyToken,(req,res,next) => {
     const id = parseInt(req.params.id);
     nursetypeRepo.findById(id,(err,nursetype) => {
         let numRows = 0;
-        if(err) throw err;
+        if(err) next(err);
         if(nursetype) numRows++;
-        res.status(200).send({ success: true, numRows, data: nursetype });
+        res.status(200).send(new DataResponse(true,numRows,nursetype));
     });
 });
 

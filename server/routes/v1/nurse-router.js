@@ -1,8 +1,8 @@
 const { Router } = require('express');
 const nurseRepo = require('../../models/nurse');
 const auth = require('../../middleware/auth');
-
 const nurseRouter = Router();
+const { CollectionResponse, DataResponse, StatusResponse, PostResponse } = require('../../responses/common/Responses');
 
 /**
  * @swagger
@@ -10,7 +10,7 @@ const nurseRouter = Router();
  *   get:
  *     tags:
  *       - nurses
- *     description: Returns all nurses
+ *     description: CollectionResponse - Returns all nurses
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -24,10 +24,10 @@ const nurseRouter = Router();
  *       401:
  *         description: Unauthorized
  */
-nurseRouter.get('/',auth.verifyToken, (req,res) => {
+nurseRouter.get('/',auth.verifyToken, (req,res,next) => {
     nurseRepo.findAll((err,rows) => {
-        if(err) throw err;
-        res.status(200).send({success: true, numRows: rows.length, rows});
+        if(err) next(err);
+        res.status(200).send(new CollectionResponse(true,rows.length,rows));
     });
 });
 
@@ -37,7 +37,7 @@ nurseRouter.get('/',auth.verifyToken, (req,res) => {
  *   get:
  *     tags:
  *       - nurses
- *     description: Returns nurse by id
+ *     description: DataResponse - Returns nurse by id
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -56,13 +56,13 @@ nurseRouter.get('/',auth.verifyToken, (req,res) => {
  *       401:
  *         description: Unauthorized
  */
-nurseRouter.get('/:id',auth.verifyToken,(req,res) => {
+nurseRouter.get('/:id',auth.verifyToken,(req,res,next) => {
     const id = parseInt(req.params.id);
     nurseRepo.findById(id,(err,nurse) => {
         let numRows = 0;
-        if(err) throw err;
+        if(err) next(err);
         if(nurse) numRows++;
-        res.status(200).send({ success: true, numRows, data: nurse});
+        res.status(200).send(new DataResponse(true,numRows,nurse));
     });
 });
 
@@ -73,7 +73,7 @@ nurseRouter.get('/:id',auth.verifyToken,(req,res) => {
  *   post:
  *     tags:
  *       - nurses
- *     description: Add a nurse
+ *     description: PostResponse - Add a nurse
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -127,7 +127,7 @@ nurseRouter.get('/:id',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-nurseRouter.post('/',auth.verifyToken,(req,res) => {
+nurseRouter.post('/',auth.verifyToken,(req,res,next) => {
     let nurseData = req.body;
     const commonProps = {
         created_by: req.userData.email,
@@ -136,8 +136,8 @@ nurseRouter.post('/',auth.verifyToken,(req,res) => {
     };
     nurseData = Object.assign(nurseData,commonProps);
     nurseRepo.save(nurseData,(err,insertId) => {
-        if(err) throw err;
-        res.status(201).send({success: true, insertId});
+        if(err) next(err);
+        res.status(201).send(new PostResponse(true,insertId));
     });
 });
 
@@ -147,7 +147,7 @@ nurseRouter.post('/',auth.verifyToken,(req,res) => {
  *   put:
  *     tags:
  *       - nurses
- *     description: Update a nurse
+ *     description: StatusResponse - Update a nurse
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -205,7 +205,7 @@ nurseRouter.post('/',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-nurseRouter.put('/:id', auth.verifyToken, (req,res) => {
+nurseRouter.put('/:id', auth.verifyToken, (req,res,next) => {
     let nurseData = req.body;
     const id = parseInt(req.params.id);
     const commonProps = {
@@ -214,8 +214,8 @@ nurseRouter.put('/:id', auth.verifyToken, (req,res) => {
     };
     nurseData = Object.assign(nurseData,commonProps);
     nurseRepo.update(id,nurseData,(err,message) => {
-        if(err) throw err;
-        res.status(200).send({success: true, message});
+        if(err) next(err);
+        res.status(200).send(new StatusResponse(true,message));
     });
 });
 
@@ -225,7 +225,7 @@ nurseRouter.put('/:id', auth.verifyToken, (req,res) => {
  *   delete:
  *     tags:
  *       - nurses
- *     description: Delete a nurse
+ *     description: StatusResponse - Delete a nurse
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -243,7 +243,7 @@ nurseRouter.put('/:id', auth.verifyToken, (req,res) => {
  *       401:
  *         description: Unauthorized
  */
-nurseRouter.delete('/:id',auth.verifyToken, (req,res) => {
+nurseRouter.delete('/:id',auth.verifyToken, (req,res,next) => {
     const id = parseInt(req.params.id);
     const payload = {
         active: false,
@@ -251,8 +251,8 @@ nurseRouter.delete('/:id',auth.verifyToken, (req,res) => {
         delete_date: new Date()
     }
     nurseRepo.delete(id,payload,(err,message) => {
-        if(err) throw err;
-        res.status(200).send({success: true, message});
+        if(err) next(err);
+        res.status(200).send(new StatusResponse(true,message));
     });
 });
 

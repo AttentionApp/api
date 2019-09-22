@@ -2,7 +2,7 @@ const { Router } = require('express');
 const customerRepo = require('../../models/customer');
 const auth = require('../../middleware/auth');
 const customerRouter = Router();
-
+const { CollectionResponse, DataResponse, StatusResponse, PostResponse } = require('../../responses/common/Responses');
 
 /**
  * @swagger
@@ -10,7 +10,7 @@ const customerRouter = Router();
  *   get:
  *     tags:
  *       - customers
- *     description: Returns all customers
+ *     description: CollectionResponse - Returns all customers
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -24,10 +24,10 @@ const customerRouter = Router();
  *       401:
  *         description: Unauthorized
  */
-customerRouter.get('/',auth.verifyToken,(req,res) => {
+customerRouter.get('/',auth.verifyToken,(req,res,next) => {
     customerRepo.findAll((err,rows) => {
-        if(err) throw err;
-        res.status(200).send({ success: true, numRows: rows.length, rows});
+        if(err) next(err);
+        res.status(200).send(new CollectionResponse(true,rows.length,rows));
     });
 });
 
@@ -38,7 +38,7 @@ customerRouter.get('/',auth.verifyToken,(req,res) => {
  *   get:
  *     tags:
  *       - customers
- *     description: Returns customer by id
+ *     description: DataResponse - Returns customer by id
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -57,13 +57,13 @@ customerRouter.get('/',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-customerRouter.get('/:id',auth.verifyToken,(req,res) => {
+customerRouter.get('/:id',auth.verifyToken,(req,res,next) => {
     const id = parseInt(req.params.id);
     customerRepo.findById(id,(err,customer) => {
         let numRows = 0;
-        if(err) throw err;
+        if(err) next(err);
         if(customer) numRows++;
-        res.status(200).send({ success: true, numRows, data: customer});
+        res.status(200).send(new DataResponse(true,numRows,customer));
     });
 });
 
@@ -74,7 +74,7 @@ customerRouter.get('/:id',auth.verifyToken,(req,res) => {
  *   post:
  *     tags:
  *       - customers
- *     description: Add a customer
+ *     description: PostResponse - Add a customer
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -107,7 +107,7 @@ customerRouter.get('/:id',auth.verifyToken,(req,res) => {
  *       401:
  *         description: Unauthorized
  */
-customerRouter.post('/',auth.verifyToken, (req,res) => {
+customerRouter.post('/',auth.verifyToken, (req,res,next) => {
     let customerData = req.body;
     const commonProps = {
         created_by: req.userData.email,
@@ -116,8 +116,8 @@ customerRouter.post('/',auth.verifyToken, (req,res) => {
     };
     customerData = Object.assign(customerData,commonProps);
     customerRepo.save(customerData,(err,insertId) => {
-        if(err) throw err;
-        res.status(201).send({success: true ,insertId});
+        if(err) next(err);
+        res.status(201).send(new PostResponse(true,insertId));
     });
 });
 
@@ -127,7 +127,7 @@ customerRouter.post('/',auth.verifyToken, (req,res) => {
  *   put:
  *     tags:
  *       - customers
- *     description: Update a customer
+ *     description: StatusResponse - Update a customer
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -164,7 +164,7 @@ customerRouter.post('/',auth.verifyToken, (req,res) => {
  *       401:
  *         description: Unauthorized
  */
-customerRouter.put('/:id', auth.verifyToken, (req,res) => {
+customerRouter.put('/:id', auth.verifyToken, (req,res,next) => {
     let customerData = req.body;
     const id = parseInt(req.params.id);
     const commonProps = {
@@ -173,8 +173,8 @@ customerRouter.put('/:id', auth.verifyToken, (req,res) => {
     };
     customerData = Object.assign(customerData,commonProps);
     customerRepo.update(id,customerData,(err,message) => {
-        if(err) throw err;
-        res.status(200).send({success: true, message});
+        if(err) next(err);
+        res.status(200).send(new StatusResponse(true,message));
     })
 });
 
@@ -184,7 +184,7 @@ customerRouter.put('/:id', auth.verifyToken, (req,res) => {
  *   delete:
  *     tags:
  *       - customers
- *     description: Delete a customer
+ *     description: StatusResponse - Delete a customer
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -202,7 +202,7 @@ customerRouter.put('/:id', auth.verifyToken, (req,res) => {
  *       401:
  *         description: Unauthorized
  */
-customerRouter.delete('/:id', auth.verifyToken, (req,res) => {
+customerRouter.delete('/:id', auth.verifyToken, (req,res,next) => {
     const id = parseInt(req.params.id);
     const payload = {
         active: false,
@@ -210,8 +210,8 @@ customerRouter.delete('/:id', auth.verifyToken, (req,res) => {
         delete_date: new Date()
     };
     customerRepo.delete(id,payload,(err,message) => {
-        if(err) throw err;
-        res.status(200).send({success: true, message});
+        if(err) next(err);
+        res.status(200).send(new StatusResponse(true,message));
     });
 });
 
