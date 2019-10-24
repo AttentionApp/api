@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const customerRepo = require('../../models/customer');
 const cardRepo = require('../../models/card');
+const reservationRepo = require('../../models/reservation');
 const auth = require('../../middleware/auth');
 const customerRouter = Router();
 const { CollectionResponse, DataResponse, StatusResponse, PostResponse } = require('../../responses/common/Responses');
@@ -74,7 +75,7 @@ customerRouter.get('/:id',auth.verifyToken,(req,res,next) => {
  *   get:
  *     tags:
  *       - customers
- *     description: DataResponse - Returns cards by customer id
+ *     description: CollectionResponse - Returns cards by customer id
  *     parameters:
  *       - in: header
  *         name: Authorization
@@ -98,6 +99,39 @@ customerRouter.get('/:id/cards', auth.verifyToken, (req,res,next) => {
     cardRepo.findByCustomerId(id,(err,cards) => {
         if(err) next(err);
         res.status(200).send(new CollectionResponse(true,cards.length,cards));
+    });
+});
+
+/**
+ * @swagger
+ * /api/v1/customers/{id}/reservations:
+ *   get:
+ *     tags:
+ *       - customers
+ *     description: CollectionResponse - Returns reservations by customer id
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer Token
+ *         type: string
+ *       - name: id
+ *         description: Customer Id
+ *         in: path
+ *         required: true
+ *         type: integer
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: A list of reservations
+ *       401:
+ *         description: Unauthorized
+ */
+customerRouter.get('/:id/reservations', auth.verifyToken, (req,res,next) => {
+    const id = parseInt(req.params.id);
+    reservationRepo.findByCustomerId(id,(err,reservations) => {
+        if(err) next(err);
+        res.status(200).send(new CollectionResponse(true,reservations.length,reservations));
     });
 });
 

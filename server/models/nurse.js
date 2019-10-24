@@ -11,6 +11,15 @@ module.exports = {
             callback(err,rows[0]);
         });
     },
+    findByReservations: callback => {
+        const sql = 'SELECT * FROM nurses n WHERE n.idnurse NOT IN (SELECT idnurse FROM reservations) AND active=1';
+        pool.query(sql,(err,rows) => {
+            if(err){
+                callback(err,null);
+            }
+            callback(err,rows);
+        });
+    },
     findAll: callback => {
         const sql = 'SELECT * FROM nurses WHERE active=1';
         pool.query(sql,(err,rows) => {

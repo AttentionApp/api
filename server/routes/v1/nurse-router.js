@@ -33,6 +33,39 @@ nurseRouter.get('/',auth.verifyToken, (req,res,next) => {
 
 /**
  * @swagger
+ * /api/v1/nurses/filter:
+ *   get:
+ *     tags:
+ *       - nurses
+ *     description: CollectionResponse - Returns all available nurses who don't have reservations for the given start and end datetime
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer Token
+ *         type: string
+ *       - name: start_date
+ *         type: string
+ *         in: formData
+ *       - name: end_date
+ *         type: string
+ *         in: formData
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array of nurses
+ *       401:
+ *         description: Unauthorized
+ */
+nurseRouter.get('/filter',auth.verifyToken, (req,res,next) => {
+    nurseRepo.findByReservations((err,rows) => {
+        if(err) next(err);
+        res.status(200).send(new CollectionResponse(true,rows.length,rows));
+    });
+});
+
+/**
+ * @swagger
  * /api/v1/nurses/{id}:
  *   get:
  *     tags:
