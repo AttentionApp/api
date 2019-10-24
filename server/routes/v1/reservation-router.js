@@ -122,6 +122,8 @@ reservationRouter.post('/',auth.verifyToken, (req,res,next) => {
         create_date: new Date(),
         active: true
     };
+    reservationData.start_date = new Date(reservationData.start_date);
+    reservationData.end_date = new Date(reservationData.end_date);
     reservationData = Object.assign(reservationData,commonProps);
     reservationRepo.save(reservationData,(err,insertId) => {
         if(err) next(err);
