@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const customerRepo = require('../../models/customer');
+const cardRepo = require('../../models/card');
 const auth = require('../../middleware/auth');
 const customerRouter = Router();
 const { CollectionResponse, DataResponse, StatusResponse, PostResponse } = require('../../responses/common/Responses');
@@ -64,6 +65,39 @@ customerRouter.get('/:id',auth.verifyToken,(req,res,next) => {
         if(err) next(err);
         if(customer) numRows++;
         res.status(200).send(new DataResponse(true,numRows,customer));
+    });
+});
+
+/**
+ * @swagger
+ * /api/v1/customers/{id}/cards:
+ *   get:
+ *     tags:
+ *       - customers
+ *     description: DataResponse - Returns cards by customer id
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer Token
+ *         type: string
+ *       - name: id
+ *         description: Customer Id
+ *         in: path
+ *         required: true
+ *         type: integer
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: A list of credit cards
+ *       401:
+ *         description: Unauthorized
+ */
+customerRouter.get('/:id/cards', auth.verifyToken, (req,res,next) => {
+    const id = parseInt(req.params.id);
+    cardRepo.findByCustomerId(id,(err,cards) => {
+        if(err) next(err);
+        res.status(200).send(new CollectionResponse(true,cards.length,cards));
     });
 });
 

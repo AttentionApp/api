@@ -11,6 +11,15 @@ module.exports = {
             callback(err,rows[0]);
         });
     },
+    findByCustomerId: (idcustomer,callback) => {
+        const sql = `SELECT * FROM cards WHERE idcustomer=${escape(idcustomer)} AND active=1`;
+        pool.query(sql, (err,rows) => {
+            if(err){
+                callback(err,null);
+            }
+            callback(err,rows);
+        });
+    },
     findAll: callback => {
         const sql = 'SELECT * FROM cards WHERE active=1';
         pool.query(sql, (err,rows) => {
